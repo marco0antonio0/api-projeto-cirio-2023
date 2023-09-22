@@ -43,7 +43,7 @@ export default async function handler(req, res) {
       res.status(200).json({ data: "insert feito com sucesso" });
     } catch (error) {
       console.error("Error executing SQL query:", error.message);
-      res.status(500).json({ error: "Internal server error" });
+      res.status(500).json({ error: error.message });
     } finally {
       await db.close();
     }
