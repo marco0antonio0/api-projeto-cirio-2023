@@ -50,6 +50,9 @@ export default async function handler(req, res) {
       } finally {
         await db.close();
       }
+    } else {
+      // res.status(500).json({ error: "Metodo não permitido" });
+      res.status(500).json({ data: false });
     }
   } else {
     // res.status(500).json({ error: "Metodo não permitido" });
