@@ -1,5 +1,4 @@
 const mysql = require("mysql2/promise");
-// import { mysql } from "mysql2/promise";
 require("dotenv").config();
 
 class DatabaseConnection {
