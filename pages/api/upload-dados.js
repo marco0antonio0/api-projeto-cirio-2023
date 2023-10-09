@@ -19,11 +19,18 @@ export default async function handler(req, res) {
     if (data[0]["pass"] == process.env.PASS) {
       try {
         await db.connect();
+        console.log(
+          "realizendo a verificação se existe dados anteriores do id indicado"
+        );
         var results = await db.query(
           "SELECT COUNT(*) AS count FROM tabelaTotal WHERE idUsuario = ?",
           [data[0]["idUsuario"]]
         );
         if (results.length > 0) {
+          console.log(
+            "verificação realizada e existe dados anteriores do id indicado"
+          );
+          console.log("INICIANDO o procedimento para dados anteriores");
           await db.query(
             `DELETE FROM tabelaTotal WHERE idUsuario = '${data[0]["idUsuario"]}' `
           );
@@ -48,27 +55,18 @@ export default async function handler(req, res) {
         console.log(
           "==========================================================="
         );
-
-        //=====================================================================
-        res.status(200).json({ data: true });
         //=====================================================================
         // erro timeout // corrigir
         //=====================================================================
-        for (let index = 0; index < data.length; index++) {
-          await db.query(
-            "INSERT INTO tabelaTotal ( dataTimeUpload, idUsuario, nomeUsuario, nome, idade, atendimento, sexo, distancia) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?)",
-            [
-              data[index]["dataTimeUpload"],
-              data[index]["idUsuario"],
-              data[index]["nomeUsuario"],
-              data[index]["nome"],
-              data[index]["idade"],
-              data[index]["atendimento"],
-              data[index]["sexo"],
-              data[index]["distancia"],
-            ]
-          );
-        }
+
+        let record = data.map(
+          (e) =>
+            `('${e["dataTimeUpload"]}' ,'${e["idUsuario"]}' ,'${e["nomeUsuario"]}' ,'${e["nome"]}' ,${e["idade"]} ,'${e["atendimento"]}' ,'${e["sexo"]}' ,'${e["distancia"]}')`
+        );
+        let itemQuery = record.join(", ");
+        let queryStringBuilder =
+          "INSERT INTO tabelaTotal ( dataTimeUpload, idUsuario, nomeUsuario, nome, idade, atendimento, sexo, distancia) VALUES " +
+          itemQuery;
         //=====================================================================
         // Logs
         //=====================================================================
@@ -86,20 +84,18 @@ export default async function handler(req, res) {
         console.log(
           "==========================================================="
         );
-        // res.status(200).json({ data: true });
+        await db.query(queryStringBuilder);
+        res.status(200).json({ data: true });
       } catch (error) {
         console.error("Error executing SQL query:", error.message);
         res.status(500).json({ data: false });
-        // res.status(500).json({ error: error.message });
       } finally {
         await db.close();
       }
     } else {
-      // res.status(500).json({ error: "Metodo não permitido" });
       res.status(500).json({ data: false });
     }
   } else {
-    // res.status(500).json({ error: "Metodo não permitido" });
     res.status(500).json({ data: false });
   }
 }
